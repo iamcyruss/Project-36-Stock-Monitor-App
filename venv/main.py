@@ -3,6 +3,7 @@ import requests
 import datetime
 from datetime import datetime, timedelta
 
+WEEKDAY = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla Inc"
 TICKER_DATA_API = os.environ.get("TICKER_DATA_API")
@@ -25,13 +26,27 @@ print(current_date.today())
 yesterday = current_date - timedelta(1)
 day_after = current_date - timedelta(2)
 yesterday_name = yesterday.strftime("%A")
-day_after_name = day_after.strftime("%A")
-yesterday_list = str(yesterday).split()
-day_after_list = str(day_after).split()
-#if (current_date - timedelta(1)).strftime("%A") == :
-print(yesterday)
-print(yesterday_list)
 print(yesterday_name)
+day_after_name = day_after.strftime("%A")
+print(day_after_name)
+if day_after_name == "Sunday":
+    # yesterday is monday day after that is sunday this will change day after to last friday
+    yesterday_list = str(yesterday).split()
+    day_after = current_date - timedelta(4)
+    day_after_name = day_after.strftime("%A")
+    day_after_list = str(day_after).split()
+elif day_after_name == "Saturday":
+    yesterday = current_date - timedelta(2)
+    yesterday_name = yesterday.strftime("%A")
+    yesterday_list = str(yesterday).split()
+    day_after = current_date - timedelta(3)
+    day_after_name = day_after.strftime("%A")
+    day_after_list = str(day_after).split()
+else:
+    yesterday_list = str(yesterday).split()
+    day_after_list = str(day_after).split()
+
+print(yesterday)
 print(day_after)
 print(day_after_list)
 
@@ -39,11 +54,14 @@ print(day_after_list)
 ticker_response = requests.get(TICKER_ENDPOINT, params=TICKER_PARAMS)
 ticker_response.raise_for_status()
 ticker_data = ticker_response.json()["Time Series (Daily)"]
+print(ticker_data)
+print(ticker_data[yesterday_list[0]])
+print(ticker_data[day_after_list[0]])
 try:
     yesterdays_ticker_data = ticker_data[yesterday_list[0]]
     day_after_ticker_data = ticker_data[day_after_list[0]]
 except KeyError:
-    print(f"Not finding one or the other for {yesterday_list[0]} and {day_after_list[0]}")
+    print(f"One of these two days ({yesterday_list[0]} and {day_after_list[0]}) must be a holiday because there's no ticker data")
 except TypeError:
     print("hi")
 print(ticker_data)
@@ -85,7 +103,7 @@ NEWS_PARAMS = {
 news_response = requests.get(NEW_ENDPOINT, params=NEWS_PARAMS)
 news_response.raise_for_status()
 news_data = news_response.json()
-#print(len(news_data['articles']))
+print(news_data['articles'])
 #print(news_data['articles'][0]['title'])
 if len(news_data['articles']) >= 3:
     for article in range(2):
@@ -94,7 +112,7 @@ if len(news_data['articles']) >= 3:
         print(news_data['articles'][article]['description'])
         print(news_data['articles'][article]['url'])
 else:
-    for article in news_data['articles']:
+    for article in range(len(news_data['articles'])):
         #print(news_data['articles'][article])
         print(news_data['articles'][article]['title'])
         print(news_data['articles'][article]['description'])
