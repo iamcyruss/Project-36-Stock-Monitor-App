@@ -20,21 +20,32 @@ TICKER_PARAMS = {
 
 # get yesterday and day after from datetime
 current_date = datetime.now()
+print(current_date.strftime("%A"))
 print(current_date.today())
-yesterday = str(current_date - timedelta(1)).split()
-day_after = str(current_date - timedelta(2)).split()
+yesterday = current_date - timedelta(1)
+day_after = current_date - timedelta(2)
+yesterday_name = yesterday.strftime("%A")
+day_after_name = day_after.strftime("%A")
+yesterday_list = str(yesterday).split()
+day_after_list = str(day_after).split()
+#if (current_date - timedelta(1)).strftime("%A") == :
 print(yesterday)
+print(yesterday_list)
+print(yesterday_name)
 print(day_after)
+print(day_after_list)
 
 # get ticker data by date
 ticker_response = requests.get(TICKER_ENDPOINT, params=TICKER_PARAMS)
 ticker_response.raise_for_status()
 ticker_data = ticker_response.json()["Time Series (Daily)"]
 try:
-    yesterdays_ticker_data = ticker_data[yesterday[0]]
-    day_after_ticker_data = ticker_data[day_after[0]]
+    yesterdays_ticker_data = ticker_data[yesterday_list[0]]
+    day_after_ticker_data = ticker_data[day_after_list[0]]
 except KeyError:
-    print(f"Not finding one or the other for {yesterday[0]} and {day_after[0]}")
+    print(f"Not finding one or the other for {yesterday_list[0]} and {day_after_list[0]}")
+except TypeError:
+    print("hi")
 print(ticker_data)
 print(TICKER_PARAMS)
 print(f"ACCOUNT: {SMS_ACCOUNT_SID} and AUTH: {SMS_AUTH_TOKEN}")
@@ -67,8 +78,8 @@ NEWS_PARAMS = {
     "apiKey": NEWS_DATA_API,
     "q": NEWS_SEARCH,
     "sortBy": "relevancy",
-    "from": day_after[0],
-    "to": yesterday[0],
+    "from": day_after_list[0],
+    "to": yesterday_list[0],
 }
 
 news_response = requests.get(NEW_ENDPOINT, params=NEWS_PARAMS)
@@ -78,12 +89,16 @@ news_data = news_response.json()
 #print(news_data['articles'][0]['title'])
 if len(news_data['articles']) >= 3:
     for article in range(2):
+        #print(news_data['articles'][article])
         print(news_data['articles'][article]['title'])
         print(news_data['articles'][article]['description'])
+        print(news_data['articles'][article]['url'])
 else:
     for article in news_data['articles']:
+        #print(news_data['articles'][article])
         print(news_data['articles'][article]['title'])
         print(news_data['articles'][article]['description'])
+        print(news_data['articles'][article]['url'])
 
 ## STEP 3: Use https://www.twilio.com
 # Send a seperate message with the percentage change and each article's title and description to your phone number. 
