@@ -30,8 +30,11 @@ print(day_after)
 ticker_response = requests.get(TICKER_ENDPOINT, params=TICKER_PARAMS)
 ticker_response.raise_for_status()
 ticker_data = ticker_response.json()["Time Series (Daily)"]
-yesterdays_ticker_data = ticker_data[yesterday[0]]
-day_after_ticker_data = ticker_data[day_after[0]]
+try:
+    yesterdays_ticker_data = ticker_data[yesterday[0]]
+    day_after_ticker_data = ticker_data[day_after[0]]
+except KeyError:
+    print(f"Not finding one or the other for {yesterday[0]} and {day_after[0]}")
 print(ticker_data)
 print(TICKER_PARAMS)
 print(f"ACCOUNT: {SMS_ACCOUNT_SID} and AUTH: {SMS_AUTH_TOKEN}")
