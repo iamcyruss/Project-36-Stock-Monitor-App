@@ -7,7 +7,6 @@ STOCK = "TSLA"
 COMPANY_NAME = "Tesla Inc"
 TICKER_DATA_API = os.environ.get("TICKER_DATA_API")
 TICKER_ENDPOINT = "https://www.alphavantage.co/query"
-NEWS_DATA_API = os.environ.get("NEWS_DATA_API")
 SMS_ACCOUNT_SID = os.environ.get("SMS_ACCOUNT_SID")
 SMS_AUTH_TOKEN = os.environ.get("SMS_AUTH_TOKEN")
 FROM_ = +19474652240
@@ -17,6 +16,7 @@ TICKER_PARAMS = {
     "datatype": "json",
     "apikey": TICKER_DATA_API,
 }
+
 
 # get yesterday and day after from datetime
 current_date = datetime.now()
@@ -42,7 +42,7 @@ def get_stock_data():
     if yesterdays_ticker_data and day_after_ticker_data:
         print(yesterdays_ticker_data)
         print(day_after_ticker_data)
-        print(day_after_ticker_data['1. open'])
+        print(day_after_ticker_data["1. open"])
         print(yesterdays_ticker_data['1. open'])
         day_after_five = (float(day_after_ticker_data['1. open']) * 5.0) * .01
         print(float(day_after_ticker_data['1. open']) - day_after_five)
@@ -56,7 +56,31 @@ def get_stock_data():
 
 
 ## STEP 2: Use https://newsapi.org
-# Instead of printing ("Get News"), actually get the first 3 news pieces for the COMPANY_NAME. 
+# Instead of printing ("Get News"), actually get the first 3 news pieces for the COMPANY_NAME.
+NEWS_SEARCH = "\"Tesla -Inc\" AND \"TSLA\""
+NEW_ENDPOINT = "https://newsapi.org/v2/everything"
+NEWS_DATA_API = os.environ.get("NEWS_DATA_API")
+NEWS_PARAMS = {
+    "apiKey": NEWS_DATA_API,
+    "q": NEWS_SEARCH,
+    "sortBy": "relevancy",
+    "from": day_after[0],
+    "to": yesterday[0],
+}
+
+news_response = requests.get(NEW_ENDPOINT, params=NEWS_PARAMS)
+news_response.raise_for_status()
+news_data = news_response.json()
+#print(len(news_data['articles']))
+#print(news_data['articles'][0]['title'])
+if len(news_data['articles']) >= 3:
+    for article in range(2):
+        print(news_data['articles'][article]['title'])
+        print(news_data['articles'][article]['description'])
+else:
+    for article in news_data['articles']:
+        print(news_data['articles'][article]['title'])
+        print(news_data['articles'][article]['description'])
 
 ## STEP 3: Use https://www.twilio.com
 # Send a seperate message with the percentage change and each article's title and description to your phone number. 
