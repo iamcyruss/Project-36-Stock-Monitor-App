@@ -74,7 +74,7 @@ if yesterdays_ticker_data and day_after_ticker_data:
     #print(day_after_ticker_data["1. open"])
     #print(yesterdays_ticker_data['1. open'])
     #check to see if the day_after open is 5% higher or lower to the yesterdays open
-    day_after_five = (float(day_after_ticker_data['1. open']) * 2.0) * .01
+    day_after_five = (float(day_after_ticker_data['1. open']) * 5.0) * .01
     print(str(day_after_five))
     day_after_ticker_data_open = float(day_after_ticker_data['1. open'])
     yesterdays_ticker_data_open = float(yesterdays_ticker_data['1. open'])
