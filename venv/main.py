@@ -17,16 +17,11 @@ TICKER_PARAMS = {
 }
 
 sms_list = 'Incoming Data: \n'
-# get yesterday and day after from datetime
 current_date = datetime.now()
-#print(current_date.strftime("%A"))
-#print(current_date.today())
 yesterday = current_date - timedelta(1)
 day_after = current_date - timedelta(2)
 yesterday_name = yesterday.strftime("%A")
-#print(yesterday_name)
 day_after_name = day_after.strftime("%A")
-#print(day_after_name)
 if day_after_name == "Sunday":
     # yesterday is monday day after that is sunday this will change day after to last friday
     yesterday_list = str(yesterday).split()
@@ -44,17 +39,10 @@ else:
     yesterday_list = str(yesterday).split()
     day_after_list = str(day_after).split()
 
-#print(yesterday)
-#print(day_after)
-#print(day_after_list)
-
 # get ticker data by date
 ticker_response = requests.get(TICKER_ENDPOINT, params=TICKER_PARAMS)
 ticker_response.raise_for_status()
 ticker_data = ticker_response.json()["Time Series (Daily)"]
-#print(ticker_data)
-#print(ticker_data[yesterday_list[0]])
-#print(ticker_data[day_after_list[0]])
 try:
     yesterdays_ticker_data = ticker_data[yesterday_list[0]]
     day_after_ticker_data = ticker_data[day_after_list[0]]
@@ -62,17 +50,9 @@ except KeyError:
     print(f"One of these two days ({yesterday_list[0]} and {day_after_list[0]}) must be a holiday because there's no ticker data")
 except TypeError:
     print("hi")
-#print(ticker_data)
-#print(TICKER_PARAMS)
-#print(f"ACCOUNT: {SMS_ACCOUNT_SID} and AUTH: {SMS_AUTH_TOKEN}")
 
-## STEP 1: Use https://www.alphavantage.co
 # When STOCK price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
 if yesterdays_ticker_data and day_after_ticker_data:
-    #print(yesterdays_ticker_data)
-    #print(day_after_ticker_data)
-    #print(day_after_ticker_data["1. open"])
-    #print(yesterdays_ticker_data['1. open'])
     #check to see if the day_after open is 5% higher or lower to the yesterdays open
     day_after_five = (float(day_after_ticker_data['1. open']) * 5.0) * .01
     print(str(day_after_five))
@@ -128,26 +108,14 @@ NEWS_PARAMS = {
 news_response = requests.get(NEW_ENDPOINT, params=NEWS_PARAMS)
 news_response.raise_for_status()
 news_data = news_response.json()
-#print(news_data['articles'])
-#print(news_data['articles'][0]['title'])
 if len(news_data['articles']) >= 3:
     for article in range(2):
-        #print(news_data['articles'][article])
-        #print(news_data['articles'][article]['publishedAt'])
-        #print(news_data['articles'][article]['title'])
-        #print(news_data['articles'][article]['description'])
-        #print(news_data['articles'][article]['url'])
         sms_list = sms_list + (f"Article Date: {news_data['articles'][article]['publishedAt'].split('T')[0]}\n"
                                f"Headline: {news_data['articles'][article]['title']}\n"
                                f"Brief: {news_data['articles'][article]['description']}\n"
                                f"Link: {news_data['articles'][article]['url']}\n")
 else:
     for article in range(len(news_data['articles'])):
-        #print(news_data['articles'][article])
-        #print(news_data['articles'][article]['publishedAt'])
-        #print(news_data['articles'][article]['title'])
-        #print(news_data['articles'][article]['description'])
-        #print(news_data['articles'][article]['url'])
         sms_list = sms_list + (f"Article Date: {news_data['articles'][article]['publishedAt'].split('T')[0]}\n"
                                f"Headline: {news_data['articles'][article]['title']}\n"
                                f"Brief: {news_data['articles'][article]['description']}\n"
@@ -156,7 +124,6 @@ else:
 print(sms_list)
 ## STEP 3: Use https://www.twilio.com
 # Send a seperate message with the percentage change and each article's title and description to your phone number.
-
 SMS_ACCOUNT_SID = os.environ.get("SMS_ACCOUNT_SID")
 SMS_AUTH_TOKEN = os.environ.get("SMS_AUTH_TOKEN")
 FROM_ = +19474652240
@@ -164,9 +131,8 @@ client = Client(SMS_ACCOUNT_SID, SMS_AUTH_TOKEN)
 if five_percent:
     message = client.messages.create(body=sms_list, from_=FROM_, to='+14253810699')
     print(message.sid)
-#todays_list =
-#message = client.messages.create(body=todays_list, from_=from_, to='+14253810699')
-#print(message.sid)
+else:
+    print("Price was within 5%. No SMS will be sent.")
 
 #Optional: Format the SMS message like this:
 """
